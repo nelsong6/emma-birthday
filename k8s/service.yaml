@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: emma-birthday
+  namespace: emma-birthday
+  labels:
+    app: emma-birthday
+spec:
+  type: ClusterIP
+  selector:
+    app: emma-birthday
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

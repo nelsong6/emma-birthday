@@ -1,0 +1,202 @@
+:root {
+  --bg: #1b1230;
+  --bg-2: #2a1b4a;
+  --paper: #fbf6ec;
+  --ink: #2c2434;
+  --ink-soft: #6b6275;
+  --accent: #e8b4c8;
+  --gold: #e7c873;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, var(--bg-2), var(--bg));
+  color: var(--paper);
+  font-family: 'Nunito', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Cover ---------- */
+.cover {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  z-index: 50;
+  transition: opacity 0.8s ease;
+  padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+}
+.cover.hide { opacity: 0; pointer-events: none; }
+
+.cover-inner { animation: rise 1s ease both; }
+.sparkle { font-size: 2rem; color: var(--gold); margin-bottom: 0.5rem; animation: twinkle 2.4s ease-in-out infinite; }
+.cover h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: clamp(2.6rem, 11vw, 5rem);
+  margin: 0;
+  line-height: 1.05;
+}
+.cover p {
+  font-style: italic;
+  color: var(--accent);
+  margin: 0.4rem 0 2rem;
+  font-size: clamp(1rem, 4vw, 1.3rem);
+}
+.start-btn {
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: var(--gold);
+  border: none;
+  border-radius: 999px;
+  padding: 0.85rem 2.2rem;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(231, 200, 115, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 38px rgba(231, 200, 115, 0.45); }
+.start-btn:active { transform: translateY(0); }
+
+/* ---------- Book / pages ---------- */
+.book {
+  position: fixed;
+  inset: 0;
+  perspective: 2000px;
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: calc(env(safe-area-inset-top) + 2rem) 1.25rem calc(env(safe-area-inset-bottom) + 3.5rem);
+  transform-origin: left center;
+  backface-visibility: hidden;
+  transition: transform 0.7s cubic-bezier(0.65, 0.02, 0.3, 1), opacity 0.7s ease;
+  will-change: transform, opacity;
+}
+
+/* Stacking + turn states */
+.page.upcoming { transform: translateX(8%) scale(0.98); opacity: 0; }
+.page.current  { transform: none; opacity: 1; z-index: 2; }
+.page.turned   { transform: rotateY(-160deg) translateX(-4%); opacity: 0; z-index: 1; }
+
+.page-card {
+  width: min(680px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.page-card img {
+  width: 100%;
+  max-height: 64vh;
+  object-fit: cover;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: clamp(1.8rem, 7vw, 3rem);
+  margin: 0;
+  text-align: center;
+  line-height: 1.1;
+}
+.page-text {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(1rem, 4.2vw, 1.25rem);
+  color: var(--accent);
+  white-space: pre-line;
+  max-width: 36ch;
+}
+
+/* Per-page theme: default text is light (good over dark bg / photos).
+   theme=light pages get dark ink for text-only light backgrounds. */
+.page[data-theme='light'] .page-title { color: var(--ink); }
+.page[data-theme='light'] .page-text  { color: var(--ink-soft); }
+
+/* ---------- Nav + controls ---------- */
+.nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--paper);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s ease, opacity 0.3s ease;
+}
+.nav:hover { background: rgba(255, 255, 255, 0.22); }
+.nav:disabled { opacity: 0.25; cursor: default; }
+.nav-prev { left: max(0.75rem, env(safe-area-inset-left)); }
+.nav-next { right: max(0.75rem, env(safe-area-inset-right)); }
+
+.mute {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 0.9rem);
+  right: calc(env(safe-area-inset-right) + 0.9rem);
+  z-index: 30;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--paper);
+  font-size: 1.15rem;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.mute.muted { opacity: 0.5; }
+
+.progress {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  gap: 0.5rem;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.dot.active { background: var(--gold); transform: scale(1.4); }
+
+/* On small screens the side arrows can crowd photos; tapping the
+   page edges still works (see app.js), so soften the arrows. */
+@media (max-width: 540px) {
+  .nav { width: 46px; height: 46px; font-size: 1.6rem; background: rgba(255,255,255,0.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page { transition: opacity 0.3s ease; }
+  .page.turned { transform: none; }
+}
+
+/* ---------- Animations ---------- */
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }

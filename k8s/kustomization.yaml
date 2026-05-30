@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: emma-birthday
+resources:
+- serviceaccount.yaml
+- deployment.yaml
+- service.yaml
+- certificate.yaml
+- xlistenerset.yaml
+- httproute.yaml
+images:
+- name: romainecr.azurecr.io/emma-birthday
+  newName: romainecr.azurecr.io/emma-birthday
+  newTag: placeholder

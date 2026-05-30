@@ -128,6 +128,26 @@ html, body {
 .page[data-theme='light'] .page-title { color: var(--ink); }
 .page[data-theme='light'] .page-text  { color: var(--ink-soft); }
 
+/* ---------- Full-bleed image pages ---------- */
+/* The uploaded image is the whole page: no padding, no card frame. */
+.page.bleed { padding: 0; }
+.page-card.full {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  max-height: none;
+  gap: 0;
+}
+.page-card.full img {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+}
+
 /* ---------- Nav + controls ---------- */
 .nav {
   position: fixed;

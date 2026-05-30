@@ -3,6 +3,9 @@
 
   const pages = Array.isArray(window.BIRTHDAY_PAGES) ? window.BIRTHDAY_PAGES : [];
   const audioFile = window.BIRTHDAY_AUDIO || '';
+  const ambienceFile = window.BIRTHDAY_AMBIENCE || '';
+  // First page that should have the ambience track audible. -1 = never.
+  const ambienceFromIndex = pages.findIndex((p) => p && p.ambience);
 
   const coverEl = document.getElementById('cover');
   const startBtn = document.getElementById('start');
@@ -12,6 +15,10 @@
   const muteBtn = document.getElementById('mute');
   const progressEl = document.getElementById('progress');
   const audioEl = document.getElementById('audio');
+  const ambienceEl = document.getElementById('ambience');
+
+  const MUSIC_VOL = 0.6;
+  const AMBIENCE_VOL = 0.5;
 
   let index = 0;
   let started = false;
@@ -22,8 +29,11 @@
     el.className = 'page';
     if (page.theme) el.dataset.theme = page.theme;
 
+    // Full-bleed pages: the image fills the whole viewport with no card frame.
+    if (page.full) el.classList.add('bleed');
+
     const card = document.createElement('div');
-    card.className = 'page-card';
+    card.className = 'page-card' + (page.full ? ' full' : '');
 
     if (page.image) {
       const img = document.createElement('img');
@@ -71,6 +81,7 @@
     dots.forEach((d, i) => d.classList.toggle('active', i === index));
     prevBtn.disabled = index === 0;
     nextBtn.disabled = index === pages.length - 1;
+    updateAmbience();
   }
 
   function go(to) {
@@ -83,28 +94,63 @@
   const prev = () => go(index - 1);
 
   // ---- Audio ----
+  let muted = false;
+
+  // Smoothly ramp an <audio> element's volume to `target` over `ms`.
+  const fadeTimers = new WeakMap();
+  function fadeTo(el, target, ms) {
+    const prevTimer = fadeTimers.get(el);
+    if (prevTimer) clearInterval(prevTimer);
+    const from = el.volume;
+    const steps = Math.max(1, Math.round(ms / 50));
+    let step = 0;
+    const id = setInterval(() => {
+      step += 1;
+      const v = from + (target - from) * (step / steps);
+      el.volume = Math.min(1, Math.max(0, v));
+      if (step >= steps) { clearInterval(id); fadeTimers.delete(el); }
+    }, 50);
+    fadeTimers.set(el, id);
+  }
+
+  // Beach/ocean ambience fades in once we reach its page, out if we go back.
+  function updateAmbience() {
+    if (!ambienceFile || ambienceFromIndex < 0) return;
+    const audible = started && !muted && index >= ambienceFromIndex;
+    fadeTo(ambienceEl, audible ? AMBIENCE_VOL : 0, 1400);
+  }
+
   function initAudio() {
-    if (!audioFile) return;
-    audioEl.src = 'audio/' + audioFile;
-    audioEl.volume = 0.6;
-    const playing = audioEl.play();
-    if (playing && typeof playing.catch === 'function') {
-      // If autoplay is still blocked for any reason, the mute button
-      // toggle (a user gesture) will recover it.
-      playing.catch(() => {});
+    if (audioFile) {
+      audioEl.src = 'audio/' + audioFile;
+      audioEl.volume = MUSIC_VOL;
+      const p = audioEl.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+      muteBtn.hidden = false;
     }
-    muteBtn.hidden = false;
+    if (ambienceFile && ambienceFromIndex >= 0) {
+      ambienceEl.src = 'audio/' + ambienceFile;
+      ambienceEl.volume = 0; // starts silent; fades in on its page
+      const p = ambienceEl.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+      muteBtn.hidden = false;
+      updateAmbience();
+    }
   }
 
   function toggleMute() {
-    if (audioEl.paused) {
-      audioEl.play().catch(() => {});
-      muteBtn.classList.remove('muted');
-      muteBtn.textContent = '♪';
-    } else {
+    muted = !muted;
+    if (muted) {
       audioEl.pause();
+      ambienceEl.pause();
       muteBtn.classList.add('muted');
       muteBtn.textContent = '♪̶';
+    } else {
+      if (audioFile) audioEl.play().catch(() => {});
+      if (ambienceFile && ambienceFromIndex >= 0) ambienceEl.play().catch(() => {});
+      muteBtn.classList.remove('muted');
+      muteBtn.textContent = '♪';
+      updateAmbience();
     }
   }
 

@@ -2,4 +2,4 @@
 # push to main (via `sed` on this file).
 image:
   repository: romainecr.azurecr.io/emma-birthday
-  tag: a879d77
+  tag: 4255e97

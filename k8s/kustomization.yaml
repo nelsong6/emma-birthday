@@ -11,4 +11,4 @@ resources:
 images:
 - name: romainecr.azurecr.io/emma-birthday
   newName: romainecr.azurecr.io/emma-birthday
-  newTag: placeholder
+  newTag: b87ec11

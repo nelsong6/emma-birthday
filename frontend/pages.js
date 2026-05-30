@@ -15,11 +15,12 @@ window.BIRTHDAY_PAGES = [
     full: true,
   },
   // Page 2 — "Sound on": the speaker sketch, full bleed. Reaching this page
-  // fades in the beach/ocean ambience (see `ambience` below), which then
-  // carries through to the seascape on page 3.
+  // fades in both the lullaby (`music`) and the beach/ocean ambience
+  // (`ambience`), which then carry through to the seascape on page 3.
   {
     image: '01.jpg',
     full: true,
+    music: true,
     ambience: true,
   },
   // Page 3 — the Dana Hulburt seascape painting, full bleed.
@@ -29,7 +30,9 @@ window.BIRTHDAY_PAGES = [
   },
 ];
 
-// Background music: loops from the first tap. Leave '' to disable.
+// Background music (Zelda's Lullaby). Like the ambience, it fades in once the
+// reader reaches the first page flagged `music: true` (page 2 here) rather than
+// playing from the start. Leave '' to disable.
 window.BIRTHDAY_AUDIO = 'song.mp3';
 
 // Ambience: a second looping track that fades in once the reader reaches the

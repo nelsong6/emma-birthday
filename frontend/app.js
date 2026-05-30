@@ -7,8 +7,6 @@
   // First page that should have the ambience track audible. -1 = never.
   const ambienceFromIndex = pages.findIndex((p) => p && p.ambience);
 
-  const coverEl = document.getElementById('cover');
-  const startBtn = document.getElementById('start');
   const bookEl = document.getElementById('book');
   const prevBtn = document.getElementById('prev');
   const nextBtn = document.getElementById('next');
@@ -18,7 +16,7 @@
   const ambienceEl = document.getElementById('ambience');
 
   const MUSIC_VOL = 0.6;
-  const AMBIENCE_VOL = 0.5;
+  const AMBIENCE_VOL = 0.34; // beach/ocean bed, ~33% below its previous 0.5
 
   let index = 0;
   let started = false;
@@ -31,6 +29,10 @@
 
     // Full-bleed pages: the image fills the whole viewport with no card frame.
     if (page.full) el.classList.add('bleed');
+
+    // Stack earlier pages on top so the current page covers later ones and,
+    // when it turns, peels away to reveal the next page sitting underneath.
+    el.style.zIndex = String(pages.length - i);
 
     const card = document.createElement('div');
     card.className = 'page-card' + (page.full ? ' full' : '');
@@ -81,7 +83,7 @@
     dots.forEach((d, i) => d.classList.toggle('active', i === index));
     prevBtn.disabled = index === 0;
     nextBtn.disabled = index === pages.length - 1;
-    updateAmbience();
+    updateAudio();
   }
 
   function go(to) {
@@ -113,63 +115,66 @@
     fadeTimers.set(el, id);
   }
 
-  // Beach/ocean ambience fades in once we reach its page, out if we go back.
-  function updateAmbience() {
-    if (!ambienceFile || ambienceFromIndex < 0) return;
-    const audible = started && !muted && index >= ambienceFromIndex;
-    fadeTo(ambienceEl, audible ? AMBIENCE_VOL : 0, 1400);
-  }
+  // Page-triggered tracks. Each fades in once the reader reaches its start page
+  // and fades back out if they page back. Playback starts lazily (inside the
+  // nav gesture that reaches the page) so the browser's autoplay policy is
+  // satisfied without a cover/tap gate. The lullaby (music) and the ocean
+  // (ambience) both start on page 2 here.
+  const tracks = [];
 
-  function initAudio() {
+  function setupAudio() {
+    const musicFromIndex = pages.findIndex((p) => p && p.music);
     if (audioFile) {
       audioEl.src = 'audio/' + audioFile;
-      audioEl.volume = MUSIC_VOL;
-      const p = audioEl.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-      muteBtn.hidden = false;
+      audioEl.volume = 0; // silent until its page fades it in
+      tracks.push({ el: audioEl, vol: MUSIC_VOL, from: musicFromIndex < 0 ? 0 : musicFromIndex });
     }
     if (ambienceFile && ambienceFromIndex >= 0) {
       ambienceEl.src = 'audio/' + ambienceFile;
-      ambienceEl.volume = 0; // starts silent; fades in on its page
-      const p = ambienceEl.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-      muteBtn.hidden = false;
-      updateAmbience();
+      ambienceEl.volume = 0;
+      tracks.push({ el: ambienceEl, vol: AMBIENCE_VOL, from: ambienceFromIndex });
+    }
+    if (tracks.length) muteBtn.hidden = false;
+  }
+
+  function updateAudio() {
+    for (const t of tracks) {
+      const audible = !muted && index >= t.from;
+      if (audible && t.el.paused) {
+        const p = t.el.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      }
+      fadeTo(t.el, audible ? t.vol : 0, 1400);
     }
   }
 
   function toggleMute() {
     muted = !muted;
     if (muted) {
-      audioEl.pause();
-      ambienceEl.pause();
+      for (const t of tracks) t.el.pause();
       muteBtn.classList.add('muted');
       muteBtn.textContent = '♪̶';
     } else {
-      if (audioFile) audioEl.play().catch(() => {});
-      if (ambienceFile && ambienceFromIndex >= 0) ambienceEl.play().catch(() => {});
       muteBtn.classList.remove('muted');
       muteBtn.textContent = '♪';
-      updateAmbience();
+      updateAudio(); // replays + fades in whatever should be audible here
     }
   }
 
   // ---- Start ----
-  function start() {
+  // No cover/“tap to begin”: the first page (page 1 in pages.js) IS the opening
+  // screen. The book shows immediately on load.
+  function init() {
     if (started) return;
     started = true;
-    coverEl.classList.add('hide');
-    setTimeout(() => { coverEl.hidden = true; }, 800);
-
     bookEl.hidden = false;
-    prevBtn.hidden = false;
-    nextBtn.hidden = false;
+    // Nav arrow buttons (#prev/#next) stay hidden — the hand-drawn arrow will
+    // become the navigation control (wired next). Edge-tap / swipe / arrow
+    // keys still turn pages in the meantime.
     progressEl.hidden = false;
+    setupAudio();
     render();
-    initAudio();
   }
-
-  startBtn.addEventListener('click', start);
 
   // ---- Navigation wiring ----
   nextBtn.addEventListener('click', next);
@@ -178,10 +183,6 @@
 
   // Keyboard
   window.addEventListener('keydown', (e) => {
-    if (!started) {
-      if (e.key === 'Enter' || e.key === ' ') start();
-      return;
-    }
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
     if (e.key === 'ArrowLeft') prev();
   });
@@ -206,7 +207,10 @@
 
   // Guard: if pages.js is empty, show a hint instead of a blank book.
   if (pages.length === 0) {
-    startBtn.textContent = 'Add pages in pages.js';
-    startBtn.disabled = true;
+    bookEl.hidden = false;
+    bookEl.innerHTML = '<section class="page current"><div class="page-card">' +
+      '<p class="page-text">Add pages in pages.js</p></div></section>';
+  } else {
+    init();
   }
 })();

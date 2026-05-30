@@ -20,50 +20,6 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- Cover ---------- */
-.cover {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  z-index: 50;
-  transition: opacity 0.8s ease;
-  padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
-}
-.cover.hide { opacity: 0; pointer-events: none; }
-
-.cover-inner { animation: rise 1s ease both; }
-.sparkle { font-size: 2rem; color: var(--gold); margin-bottom: 0.5rem; animation: twinkle 2.4s ease-in-out infinite; }
-.cover h1 {
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 600;
-  font-size: clamp(2.6rem, 11vw, 5rem);
-  margin: 0;
-  line-height: 1.05;
-}
-.cover p {
-  font-style: italic;
-  color: var(--accent);
-  margin: 0.4rem 0 2rem;
-  font-size: clamp(1rem, 4vw, 1.3rem);
-}
-.start-btn {
-  font: inherit;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-  background: var(--gold);
-  border: none;
-  border-radius: 999px;
-  padding: 0.85rem 2.2rem;
-  cursor: pointer;
-  box-shadow: 0 8px 30px rgba(231, 200, 115, 0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.start-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 38px rgba(231, 200, 115, 0.45); }
-.start-btn:active { transform: translateY(0); }
-
 /* ---------- Book / pages ---------- */
 .book {
   position: fixed;
@@ -78,15 +34,24 @@ html, body {
   place-items: center;
   padding: calc(env(safe-area-inset-top) + 2rem) 1.25rem calc(env(safe-area-inset-bottom) + 3.5rem);
   transform-origin: left center;
-  backface-visibility: hidden;
-  transition: transform 0.7s cubic-bezier(0.65, 0.02, 0.3, 1), opacity 0.7s ease;
-  will-change: transform, opacity;
+  /* Underside shows the (mirrored) page instead of vanishing, so the peel
+     never reveals the background behind it. */
+  backface-visibility: visible;
+  transition: transform 0.7s cubic-bezier(0.65, 0.02, 0.3, 1);
+  will-change: transform;
 }
 
-/* Stacking + turn states */
-.page.upcoming { transform: translateX(8%) scale(0.98); opacity: 0; }
-.page.current  { transform: none; opacity: 1; z-index: 2; }
-.page.turned   { transform: rotateY(-160deg) translateX(-4%); opacity: 0; z-index: 1; }
+/* Page-peel model: every page sits flat and fully opaque, stacked by z-index
+   (set per-page in app.js: earlier pages on top). The current page covers the
+   ones after it; turning it rotates it off to the left around its spine,
+   revealing the next page that was already sitting underneath — so the purple
+   background is never exposed mid-turn.
+   - upcoming: at rest beneath the current page
+   - current:  at rest on top
+   - turned:   peeled 180° off the left edge (off-screen) */
+.page.upcoming { transform: rotateY(0deg); }
+.page.current  { transform: rotateY(0deg); }
+.page.turned   { transform: rotateY(-180deg); }
 
 .page-card {
   width: min(680px, 100%);
@@ -213,10 +178,8 @@ html, body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page { transition: opacity 0.3s ease; }
-  .page.turned { transform: none; }
+  /* No page-turn animation: pages swap instantly (current is already on top). */
+  .page { transition: none; }
 }
 
 /* ---------- Animations ---------- */
-@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }

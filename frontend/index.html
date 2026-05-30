@@ -11,14 +11,19 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- The opening screen IS page 1 (see pages.js). Pages are injected here. -->
-  <main id="book" class="book" hidden aria-live="polite"></main>
+  <!-- Everything lives inside .device. On a phone it fills the screen; on a
+       wide/desktop screen it becomes a centered, phone-shaped column so the
+       book renders the same way it does natively on a phone (see styles.css). -->
+  <div id="device" class="device">
+    <!-- The opening screen IS page 1 (see pages.js). Pages are injected here. -->
+    <main id="book" class="book" hidden aria-live="polite"></main>
 
-  <!-- Controls -->
-  <button id="prev" class="nav nav-prev" type="button" aria-label="Previous page" hidden>‹</button>
-  <button id="next" class="nav nav-next" type="button" aria-label="Next page" hidden>›</button>
-  <button id="mute" class="mute" type="button" aria-label="Mute music" hidden>♪</button>
-  <div id="progress" class="progress" hidden></div>
+    <!-- Controls -->
+    <button id="prev" class="nav nav-prev" type="button" aria-label="Previous page" hidden>‹</button>
+    <button id="next" class="nav nav-next" type="button" aria-label="Next page" hidden>›</button>
+    <button id="mute" class="mute" type="button" aria-label="Mute music" hidden>♪</button>
+    <div id="progress" class="progress" hidden></div>
+  </div>
 
   <audio id="audio" loop preload="auto"></audio>
   <audio id="ambience" loop preload="auto"></audio>

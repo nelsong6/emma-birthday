@@ -20,9 +20,36 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ---------- Device frame ----------
+   Everything lives inside .device. On a phone (portrait) it fills the screen,
+   so nothing about the phone experience changes. On a wide / landscape screen
+   (a desktop monitor, or a phone held sideways) it shrinks to a centered,
+   phone-shaped portrait column with rounded corners + a soft shadow, and the
+   dark page background fills the space on either side. Because the book and all
+   its controls are positioned *inside* .device (absolute, not viewport-fixed),
+   they lay out exactly as they do on a phone. */
+.device {
+  position: fixed;
+  inset: 0;
+}
+
+@media (min-aspect-ratio: 1 / 1) {
+  .device {
+    inset: 0;
+    margin: auto;                                 /* center within the fixed box */
+    height: 100vh;                                /* fallback for no-dvh browsers */
+    height: 100dvh;
+    width: min(100vw, calc(100vh * 9 / 19.5));    /* fallback */
+    width: min(100vw, calc(100dvh * 9 / 19.5));   /* ~ a phone's aspect ratio */
+    overflow: hidden;                             /* clip page-turns to the frame */
+    border-radius: 28px;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+  }
+}
+
 /* ---------- Book / pages ---------- */
 .book {
-  position: fixed;
+  position: absolute;
   inset: 0;
   perspective: 2000px;
 }
@@ -115,7 +142,7 @@ html, body {
 
 /* ---------- Nav + controls ---------- */
 .nav {
-  position: fixed;
+  position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 30;
@@ -137,7 +164,7 @@ html, body {
 .nav-next { right: max(0.75rem, env(safe-area-inset-right)); }
 
 .mute {
-  position: fixed;
+  position: absolute;
   top: calc(env(safe-area-inset-top) + 0.9rem);
   right: calc(env(safe-area-inset-right) + 0.9rem);
   z-index: 30;
@@ -154,7 +181,7 @@ html, body {
 .mute.muted { opacity: 0.5; }
 
 .progress {
-  position: fixed;
+  position: absolute;
   bottom: calc(env(safe-area-inset-bottom) + 1rem);
   left: 50%;
   transform: translateX(-50%);

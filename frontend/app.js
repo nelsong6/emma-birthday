@@ -190,7 +190,12 @@
   // Tap edges of the book to turn (mobile-friendly, doesn't fight buttons)
   bookEl.addEventListener('click', (e) => {
     if (e.target.closest('button')) return;
-    const x = e.clientX / window.innerWidth;
+    // Measure the tap against the book's own box, not the window: on desktop the
+    // book is a centered phone-width column, so the left/right thirds must be
+    // relative to that column. On a phone the column fills the screen, so this is
+    // identical to the old window-relative behavior.
+    const rect = bookEl.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
     if (x > 0.62) next();
     else if (x < 0.38) prev();
   });

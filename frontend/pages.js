@@ -16,19 +16,14 @@ window.BIRTHDAY_PAGES = [
   },
   {
     image: '01.jpg',
-    title: 'A year of you',
-    text: 'Replace me with a favorite photo.',
+    text: 'Sound on! 🔊',
   },
   {
     image: '02.jpg',
-    text: 'Add a caption here, or leave it blank.',
+    text: 'Turn the page →',
   },
   {
     image: '03.jpg',
-    title: 'More memories',
-  },
-  {
-    image: '04.jpg',
   },
   {
     title: 'Here’s to the next one 🥂',

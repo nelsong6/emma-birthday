@@ -1,0 +1,6 @@
+apiVersion: v2
+name: emma-birthday
+description: emma-birthday
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -17,12 +17,12 @@ Azure AD identity, AcrPush, and the ArgoCD Application live in
   audio filename) so non-code edits don't touch app logic.
 - `backend/server.js` — minimal Express: `/health` + static serve of
   `frontend/`.
-- `k8s/` — Deployment, Service, ServiceAccount (`infra-shared`), Certificate,
-  XListenerSet, HTTPRoute, kustomization. All hostnames are
-  `birthday.emma.romaine.life`.
-- `.github/workflows/build-and-deploy.yaml` — build → ACR push → kustomize
-  image-tag bump committed back to main → ArgoCD deploys → release tag.
-  Mirrors landing-page / my-homepage.
+- `k8s/` — Helm chart (`Chart.yaml`, `values.yaml`, `templates/`): Deployment,
+  Service, ServiceAccount (`infra-shared`), Certificate, XListenerSet,
+  HTTPRoute. All hostnames are `birthday.emma.romaine.life`.
+- `.github/workflows/build-and-deploy.yaml` — build → ACR push → `sed`
+  image-tag bump on `k8s/values.yaml` committed back to main → ArgoCD deploys
+  → release tag. Mirrors my-homepage.
 
 ## Conventions
 

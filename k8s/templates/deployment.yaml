@@ -23,7 +23,7 @@ spec:
       serviceAccountName: infra-shared
       containers:
         - name: emma-birthday
-          image: romainecr.azurecr.io/emma-birthday:placeholder
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

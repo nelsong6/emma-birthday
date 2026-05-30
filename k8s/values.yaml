@@ -5,4 +5,4 @@
 # quoted, producing a broken image reference. Always keep the quotes.
 image:
   repository: romainecr.azurecr.io/emma-birthday
-  tag: "4255e97"
+  tag: "3d9e748"

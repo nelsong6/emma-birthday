@@ -1,5 +1,8 @@
 # The image tag is bumped by .github/workflows/build-and-deploy.yaml on every
 # push to main (via `sed` on this file).
+# NOTE: the tag is quoted on purpose. Short git SHAs like `4255e97` are valid
+# YAML scientific notation (4255e97 -> 4.255e+100) and parse as a float unless
+# quoted, producing a broken image reference. Always keep the quotes.
 image:
   repository: romainecr.azurecr.io/emma-birthday
-  tag: 4255e97
+  tag: "4255e97"

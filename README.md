@@ -32,7 +32,7 @@ Served from AKS (namespace `emma-birthday`) by a tiny Node+Express container
 that static-serves `frontend/`, behind the shared Envoy Gateway. DNS
 (`birthday.emma.romaine.life`) is created by external-dns from the HTTPRoute
 hostname, and cert-manager issues the TLS cert. The repo, Azure identity, and
-ArgoCD wiring live in `nelsong6/infra-bootstrap`.
+ArgoCD wiring live in `romaine-life/infra-bootstrap`.
 
 Push to `main` → GitHub Actions builds the image, pushes to ACR, bumps the
 tag in `k8s/values.yaml`, and ArgoCD deploys it.

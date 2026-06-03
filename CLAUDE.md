@@ -8,7 +8,7 @@ Served from AKS (namespace `emma-birthday`) by a Node+Express container that
 static-serves `frontend/` (no frontend build step). The shared Envoy Gateway +
 cert-manager + external-dns provide routing, TLS, and DNS. The GitHub repo,
 Azure AD identity, AcrPush, and the ArgoCD Application live in
-`nelsong6/infra-bootstrap` (`tofu/main.tf` app module + `k8s/apps/emma-birthday.yaml`).
+`romaine-life/infra-bootstrap` (`tofu/main.tf` app module + `k8s/apps/emma-birthday.yaml`).
 
 ## Layout
 
